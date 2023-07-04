@@ -7,6 +7,25 @@ bot = TeleBot(TOKEN)
 game = False
 
 
+@bot.message_handler(commands=['game'])
+def start_game(message):
+    global game
+    players = db.players_amount()
+    if players >= 5 and not game:
+        db.set_roles(players)
+        players_roles = db.get_players_roles()
+        mafia_usernames = db.get_mafia_usernames()
+        for player_id, role in players_roles:
+            bot.send_message(player_id, text=role)
+            if role == 'mafia':
+                bot.send_message(
+                    player_id, text=f'Все члены мафии:\n{mafia_usernames}')
+        game = True
+        bot.send_message(message.chat.id, text='Игра началась!')
+        return
+    bot.send_message(message.chat.id, text='Недостаточно людей!')
+
+
 @bot.message_handler(commands=['play'])
 def play(message):
     if not game:
