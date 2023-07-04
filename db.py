@@ -31,3 +31,13 @@ def get_mafia_usernames():
         names += name + '\n'
     con.close()
     return names
+
+
+def get_plaeyr_roles():
+    con = sqlite3.connect('db.db')
+    cur = con.cursor()
+    sql = f"SELECT player_id, role FROM players"
+    cur.execute(sql)
+    data = cur.fetchall()
+    con.close()
+    return data
