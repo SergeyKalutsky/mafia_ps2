@@ -1,10 +1,36 @@
 import db
+from time import sleep
 from telebot import TeleBot
 
 TOKEN = '5725792179:AAHIAlFVHfb5cBfCs6IIvwAwAlyJnQlhlfw'
 bot = TeleBot(TOKEN)
 
 game = False
+night = True
+
+
+def game_loop(message):
+    global night
+    bot.send_message(message.chat.id, 'Добро пожаловать в игру!')
+    sleep(5)
+    while True:
+        if night:
+            bot.send_message(
+                message.chat.id, 'Город засыпает, просыпается мафия. Натупила ночь')
+        else:
+            bot.send_message(
+                message.chat.id, 'Город просыпается, наступил день!')
+        night = not night
+        alive = db.get_all_alive()
+        alive = '\n'.join(alive)
+        bot.send_message(
+                message.chat.id, f'В игре:\n {alive}')
+        sleep(5)
+
+
+@bot.message_handler(commands=['test'])
+def test(message):
+    game_loop(message)
 
 
 @bot.message_handler(commands=['game'])

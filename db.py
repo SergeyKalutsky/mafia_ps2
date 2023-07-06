@@ -99,13 +99,39 @@ def mafia_kill():
     cur = con.cursor()
     cur.execute('SELECT MAX(mafia_vote) FROM players')
     max_vote = cur.fetchone()[0]
-    cur.execute("SELECT COUNT(*) FROM players WHERE dead = 0 and role = 'mafia' ")
+    cur.execute(
+        "SELECT COUNT(*) FROM players WHERE dead = 0 and role = 'mafia' ")
     mafia_alive = cur.fetchone()[0]
     username_killed = 'никого'
     if mafia_alive == max_vote:
-        cur.execute(f'SELECT username FROM players WHERE mafia_vote = {max_vote}')
+        cur.execute(
+            f'SELECT username FROM players WHERE mafia_vote = {max_vote}')
         username_killed = cur.fetchone()[0]
-        cur.execute(f"UPDATE players SET dead = 1 WHERE username = '{username_killed}' ")
+        cur.execute(
+            f"UPDATE players SET dead = 1 WHERE username = '{username_killed}' ")
+        con.commit()
+    con.close()
+    return username_killed
+
+
+def citizens_kill():
+    con = sqlite3.connect("db.db")
+    cur = con.cursor()
+    # Выбираем большинство голосов горожан
+    cur.execute(f"SELECT MAX(citizen_vote) FROM players")
+    max_votes = cur.fetchone()[0]
+    # Выбираем кол-во живых горожан
+    cur.execute(
+        f"SELECT COUNT(*) FROM players WHERE citizen_vote = {max_votes}")
+    max_votes_count = cur.fetchone()[0]
+    username_killed = 'никого'
+    # Проверяем, что только 1 человек с макс. кол-вом голосов
+    if max_votes_count == 1:
+        cur.execute(
+            f"SELECT username FROM players WHERE citizen_vote = {max_votes}")
+        username_killed = cur.fetchone()[0]
+        cur.execute(
+            f"UPDATE players SET dead = 1 WHERE username = '{username_killed}' ")
         con.commit()
     con.close()
     return username_killed
