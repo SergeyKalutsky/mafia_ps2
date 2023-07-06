@@ -93,3 +93,19 @@ def vote(type, username, player_id):
     con.close()
     return False
 
+
+def mafia_kill():
+    con = sqlite3.connect('db.db')
+    cur = con.cursor()
+    cur.execute('SELECT MAX(mafia_vote) FROM players')
+    max_vote = cur.fetchone()[0]
+    cur.execute("SELECT COUNT(*) FROM players WHERE dead = 0 and role = 'mafia' ")
+    mafia_alive = cur.fetchone()[0]
+    username_killed = 'никого'
+    if mafia_alive == max_vote:
+        cur.execute(f'SELECT username FROM players WHERE mafia_vote = {max_vote}')
+        username_killed = cur.fetchone()[0]
+        cur.execute(f"UPDATE players SET dead = 1 WHERE username = '{username_killed}' ")
+        con.commit()
+    con.close()
+    return username_killed
