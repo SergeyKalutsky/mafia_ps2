@@ -16,7 +16,8 @@ def players_amount():
     cur = con.cursor()
     sql = 'SELECT * FROM players'
     cur.execute(sql)
-    rows = cur.fetchall()
+    rows = cur.fetchall() # [(2231, 'sd'...), (), ()]
+    con.close()
     return len(rows)
 
 
@@ -56,7 +57,7 @@ def get_all_alive():
 
 
 def set_roles(players):
-    game_roles = ['citizen'] * players
+    game_roles = ['citizen'] * players 
     mafias = int(players * 0.3)
     for i in range(mafias):
         game_roles[i] = 'mafia'
