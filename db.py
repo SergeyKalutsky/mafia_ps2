@@ -16,7 +16,7 @@ def players_amount():
     cur = con.cursor()
     sql = 'SELECT * FROM players'
     cur.execute(sql)
-    rows = cur.fetchall() # [(2231, 'sd'...), (), ()]
+    rows = cur.fetchall()  # [(2231, 'sd'...), (), ()]
     con.close()
     return len(rows)
 
@@ -57,7 +57,7 @@ def get_all_alive():
 
 
 def set_roles(players):
-    game_roles = ['citizen'] * players 
+    game_roles = ['citizen'] * players
     mafias = int(players * 0.3)
     for i in range(mafias):
         game_roles[i] = 'mafia'
@@ -73,4 +73,23 @@ def set_roles(players):
         cur.execute(sql)
     con.commit()
     con.close()
+
+
+def vote(type, username, player_id):
+    # mafia_vote, citizen_vote
+    con = sqlite3.connect('db.db')
+    cur = con.cursor()
+    sql = f"SELECT username FROM players WHERE player_id = {player_id} AND dead = 0 AND voted = 0"
+    cur.execute(sql)
+    can_vote = cur.fetchone()  # ('Sergey')/ ()
+    if can_vote:
+        sql = f"UPDATE players SET {type} = {type} + 1 WHERE username = '{username}' "
+        cur.execute(sql)
+        sql = f"UPDATE players SET voted = 1 WHERE player_id = {player_id}"
+        cur.execute(sql)
+        con.commit()
+        con.close()
+        return True
+    con.close()
+    return False
 
