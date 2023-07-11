@@ -135,3 +135,27 @@ def citizens_kill():
         con.commit()
     con.close()
     return username_killed
+
+
+def check_winner():
+    con = sqlite3.connect("db.db")
+    cur = con.cursor()
+    cur.execute("SELECT COUNT(*) FROM players WHERE role = 'mafia' and dead = 0 ")
+    mafia_alive = cur.fetchone()[0]
+    cur.execute("SELECT COUNT(*) FROM players WHERE role != 'mafia' and dead = 0 ")
+    citizen_alive = cur.fetchone()[0]
+    if mafia_alive >= citizen_alive:
+        return 'Мафия'
+    if mafia_alive == 0:
+        return 'Горожане'
+
+
+def clear(dead=False):
+    con = sqlite3.connect("db.db")
+    cur = con.cursor()
+    sql = "UPDATE players SET mafia_vote = 0, citizen_vote = 0, voted = 0"
+    if dead:
+        sql += ', dead = 0'
+    cur.execute(sql)
+    con.commit()
+    con.close()
