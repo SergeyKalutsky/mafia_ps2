@@ -36,16 +36,13 @@ def game_loop(message):
             bot.send_message(message.chat.id, f'Игра окончена! Победили: {winner}')
             return 
         night = not night
+        db.clear()
         alive = db.get_all_alive()
         alive = '\n'.join(alive)
         bot.send_message(
             message.chat.id, f'В игре:\n {alive}')
         sleep(60)
 
-
-@bot.message_handler(commands=['test'])
-def test(message):
-    game_loop(message)
 
 
 @bot.message_handler(commands=['kick'])
@@ -96,6 +93,8 @@ def start_game(message):
                 bot.send_message(
                     player_id, text=f'Все члены мафии:\n{mafia_usernames}')
         game = True
+        db.clear(dead=True)
+        game_loop(message)
         bot.send_message(message.chat.id, text='Игра началась!')
         return
     bot.send_message(message.chat.id, text='Недостаточно людей!')
